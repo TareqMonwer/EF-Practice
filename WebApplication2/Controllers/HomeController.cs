@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using WebApplication2.Data;
 using WebApplication2.Models;
+using WebApplication2.Schema;
 
 namespace WebApplication2.Controllers
 {
@@ -18,10 +19,10 @@ namespace WebApplication2.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pageNumber)
         {
-            var todoes = await _context.Todo.Where(todo => !todo.IsDeleted).ToListAsync();
-            return View(todoes);
+            var todoes = _context.Todo.AsNoTracking().Where(todo => !todo.IsDeleted);
+            return View(await PaginatedList<Todo>.CreateAsync(todoes.AsNoTracking(), pageNumber ?? 1));
         }
 
         public IActionResult Privacy()

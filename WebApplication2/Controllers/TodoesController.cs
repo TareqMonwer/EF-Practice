@@ -1,18 +1,7 @@
-﻿using System;
-using System.Buffers.Text;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection.Metadata;
-using System.Security.AccessControl;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SQLitePCL;
 using WebApplication2.Data;
 using WebApplication2.Models;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace WebApplication2.Controllers
 {
@@ -29,6 +18,7 @@ namespace WebApplication2.Controllers
         public async Task<IActionResult> Index()
         {
             var todoList = await _context.Todo
+                .AsNoTracking()
                 .OrderByDescending(t => t.CompletedAt.HasValue)
                 .ThenByDescending(t => t.CompletedAt)
                 .ToListAsync();

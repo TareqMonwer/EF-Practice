@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebApplication2.Models.Todo>
+﻿@model WebApplication2.Schema.PaginatedList<WebApplication2.Models.Todo>
 
 <form id="todoForm">
     <input type="text" id="todoInput" placeholder="Enter a task" required>
@@ -13,7 +13,40 @@
             <button class="btn btn-remove">Remove</button>
         </li>
     }
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       class="btn btn-default"
+        id="prevButton">
+        Previous
+    </a>
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       class="btn btn-default"
+       id="nextButton">
+        Next
+    </a>
 </ul>
 
 
 <a href="./Todoes">See All Tasks History</a>
+
+<script>
+    var nextButton = document.getElementById('nextButton');
+    var prevButton = document.getElementById('prevButton');
+    var hasNextPage = @(Model.HasNextPage ? "true" : "false");
+    var hasPrevPage = @(Model.HasPreviousPage ? "true" : "false");
+
+    if (!hasNextPage) {
+        nextButton.classList.add('disabled');
+        nextButton.addEventListener('click', function (event) {
+            event.preventDefault();
+        });
+    }
+    if (!hasPrevPage) {
+        prevButton.classList.add('disabled');
+        prevButton.addEventListener('click', function (event) {
+            event.preventDefault();
+        });
+    }
+</script>
