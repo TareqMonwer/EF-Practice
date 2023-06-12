@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
 using WebApplication2.Data;
 using WebApplication2.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
@@ -30,6 +31,23 @@ namespace WebApplication2.Controllers
             return _context.Todo != null ?
                         View(await _context.Todo.ToListAsync()) :
                         Problem("Entity set 'WebApplication2Context.Todo'  is null.");
+        }
+
+        [HttpPost("Todoes")]
+        public async Task<ActionResult<Todo>> CreateTodo([FromBody]Todo todo)
+        {
+            if (_context.Todo == null)
+            {
+                return Problem("Entity set 'WebApplication2Context.Todo' is null.");
+            }
+            if (todo.Title.Length < 1)
+            {
+                return BadRequest(new { message = "Invalid data" });
+            }
+            todo.CreatedAt = DateTime.Now;
+            _context.Add(todo);
+            await _context.SaveChangesAsync();
+            return Json(todo);
         }
 
         // GET: Todoes/Details/5

@@ -27,35 +27,13 @@ function markAsCompleted(id, todoItem) {
     fetch(`/Todoes/MarkAsComplete/${id}`)
         .then(response => {
             if (response.ok) {
-                Toastify({
-                    text: "Completed",
-                    duration: 3000,
-                    close: true,
-                    gravity: "bottom",
-                    position: "right",
-                    stopOnFocus: true,
-                    style: {
-                        background: "linear-gradient(to right, #00b09b, #96c93d)",
-                    },
-                    onClick: function () { }
-                }).showToast();
+                showToast("Completed");
 
                 todoItem.classList.toggle('completed');
                 return response.json();
             } else if (response.status === 400) {
                 return response.json().then(error => {
-                    Toastify({
-                        text: error.message,
-                        duration: 3000,
-                        close: true,
-                        gravity: "bottom", 
-                        position: "right", 
-                        stopOnFocus: true,
-                        style: {
-                            background: "linear-gradient(to right, #FF4E50, #F9D423)",
-                        },
-                        onClick: function () { }
-                    }).showToast();
+                    showToast(error.message, isError=true);
                 });
             } else {
                 throw new Error("Request failed");
@@ -70,13 +48,63 @@ function markAsCompleted(id, todoItem) {
 }
 
 
-function addTodoItem(text) {
-    const todoItem = document.createElement('li');
-    todoItem.className = 'todo-item';
-    todoItem.innerHTML = `
+function createTodoItem(text) {
+    const data = {
+        "Title": '',
+        "IsDeleted": false,
+        "IsCompleted": false
+    }
+    return fetch("/Todoes", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(responseData => {
+            if (responseData.status == 200) {
+                return true;
+            } else {
+                return responseData.message;
+            }
+        })
+        .catch(error => {
+            return error.message;
+        });
+}
+
+async function addTodoItem(text) {
+    const created = await createTodoItem(text);
+
+    if (created === true) {
+        const todoItem = document.createElement('li');
+        todoItem.className = 'todo-item';
+        todoItem.innerHTML = `
         <input type="checkbox">
         <label>${text}</label>
         <button class="btn btn-remove">Remove</button>
       `;
-    todoList.appendChild(todoItem);
+        todoList.appendChild(todoItem);
+    } else {
+        showToast(created, isError = true);
+    }
+}
+
+
+function showToast(message, isError) {
+    Toastify({
+        text: message,
+        duration: 3000,
+        close: true,
+        gravity: "bottom",
+        position: "right",
+        stopOnFocus: true,
+        style: {
+            background: isError ?
+                "linear-gradient(to right, #FF4E50, #F9D423)" :
+                "linear-gradient(to right, #00b09b, #96c93d)",
+        },
+        onClick: function () { }
+    }).showToast();
 }
