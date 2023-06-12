@@ -152,7 +152,10 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            return View(todo);
+            todo.IsDeleted = true;
+            await _context.SaveChangesAsync();
+
+            return Json(new { message = "Deleted"});
         }
 
         // POST: Todoes/Delete/5

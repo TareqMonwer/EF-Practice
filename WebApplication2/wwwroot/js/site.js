@@ -18,7 +18,8 @@ todoList.addEventListener('click', function (event) {
         markAsCompleted(Number(id), todoItem);
     } else if (event.target.matches('.btn-remove')) {
         const todoItem = event.target.closest('li');
-        todoItem.remove();
+        const id = todoItem.querySelector("input").getAttribute("data-id");
+        removeTodoItem(Number(id), todoItem);
     }
 });
 
@@ -75,6 +76,23 @@ function createTodoItem(text) {
         })
         .catch(error => {
             return error.message;
+        });
+}
+
+function removeTodoItem(id, todoItem) {
+    fetch(`/Todoes/Delete/${id}`)
+        .then(response => {
+            if (response.ok) {
+                todoItem.remove();
+                return response.json();
+            } else {
+                throw new Error("Request failed");
+            }
+        })
+        .then(data => {
+        })
+        .catch(error => {
+            console.error(error);
         });
 }
 
