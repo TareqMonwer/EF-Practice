@@ -1,0 +1,19 @@
+﻿@model IEnumerable<WebApplication2.Models.Todo>
+
+<form id="todoForm">
+    <input type="text" id="todoInput" placeholder="Enter a task" required>
+    <button type="submit" class="btn">Add</button>
+</form>
+<ul id="todoList">
+    @foreach (var todo in Model)
+    {
+        <li class="todo-item @(todo.IsCompleted ? "completed" : "")">
+            <input type="checkbox" data-id="@todo.Id">
+            <label>@todo.Title</label>
+            <button class="btn btn-remove">Remove</button>
+        </li>
+    }
+</ul>
+
+
+<a href="./Todoes">See All Tasks History</a>
