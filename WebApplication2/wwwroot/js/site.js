@@ -6,7 +6,7 @@ todoForm.addEventListener('submit', function (event) {
     event.preventDefault();
     const todoText = todoInput.value.trim();
     if (todoText !== '') {
-        addTodoItem(todoText);
+        createTodoItem(todoText);
         todoInput.value = '';
     }
 });
@@ -50,7 +50,7 @@ function markAsCompleted(id, todoItem) {
 
 function createTodoItem(text) {
     const data = {
-        "Title": '',
+        "Title": text,
         "IsDeleted": false,
         "IsCompleted": false
     }
@@ -61,12 +61,16 @@ function createTodoItem(text) {
         },
         body: JSON.stringify(data),
     })
-        .then(response => response.json())
-        .then(responseData => {
-            if (responseData.status == 200) {
-                return true;
+        .then(response => {
+            if (response.ok) {
+                addTodoItem(text);
+                return response.json();
+            } else if (response.status === 400) {
+                return response.json().then(error => {
+                    showToast(error.message, isError = true);
+                });
             } else {
-                return responseData.message;
+                throw new Error("Request failed");
             }
         })
         .catch(error => {
@@ -75,20 +79,14 @@ function createTodoItem(text) {
 }
 
 async function addTodoItem(text) {
-    const created = await createTodoItem(text);
-
-    if (created === true) {
-        const todoItem = document.createElement('li');
-        todoItem.className = 'todo-item';
-        todoItem.innerHTML = `
+    const todoItem = document.createElement('li');
+    todoItem.className = 'todo-item';
+    todoItem.innerHTML = `
         <input type="checkbox">
         <label>${text}</label>
         <button class="btn btn-remove">Remove</button>
       `;
-        todoList.appendChild(todoItem);
-    } else {
-        showToast(created, isError = true);
-    }
+    todoList.appendChild(todoItem);
 }
 
 

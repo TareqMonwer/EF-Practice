@@ -28,9 +28,12 @@ namespace WebApplication2.Controllers
         // GET: Todoes
         public async Task<IActionResult> Index()
         {
-            return _context.Todo != null ?
-                        View(await _context.Todo.ToListAsync()) :
-                        Problem("Entity set 'WebApplication2Context.Todo'  is null.");
+            var todoList = await _context.Todo
+                .OrderByDescending(t => t.CompletedAt.HasValue)
+                .ThenByDescending(t => t.CompletedAt)
+                .ToListAsync();
+
+            return _context.Todo != null ? View(todoList) : Problem("Entity set 'WebApplication2Context.Todo'  is null.");
         }
 
         [HttpPost("Todoes")]
@@ -43,6 +46,11 @@ namespace WebApplication2.Controllers
             if (todo.Title.Length < 1)
             {
                 return BadRequest(new { message = "Invalid data" });
+            }
+            var existingTodo = await _context.Todo.FirstOrDefaultAsync(m => m.Title == todo.Title);
+            if (existingTodo != null)
+            {
+                return BadRequest(new { message = "Todo with the same title already exists" });
             }
             todo.CreatedAt = DateTime.Now;
             _context.Add(todo);
